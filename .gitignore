@@ -1,0 +1,24 @@
+# --- SECURITY ---
+.env
+.env.local
+# Ignorar arquivos de propriedades que podem ter senhas
+application-local.properties
+application-local.yml
+
+# --- MAVEN ---
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# --- IDEs ---
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+.classpath
+.project
+.settings/

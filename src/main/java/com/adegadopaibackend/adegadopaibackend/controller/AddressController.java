@@ -1,0 +1,49 @@
+package com.adegadopaibackend.adegadopaibackend.controller;
+
+import com.adegadopaibackend.adegadopaibackend.dto.request.CreateAddressRequest;
+import com.adegadopaibackend.adegadopaibackend.dto.request.UpdateAddressRequest;
+import com.adegadopaibackend.adegadopaibackend.dto.response.AddressResponse;
+import com.adegadopaibackend.adegadopaibackend.service.AddressService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/addresses")
+public class AddressController {
+
+    private final AddressService addressService;
+
+    @PostMapping("/user/{userId}")
+    public ResponseEntity<AddressResponse> create(@PathVariable Long userId,
+                                                  @Valid @RequestBody CreateAddressRequest req) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(addressService.create(userId, req));
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<AddressResponse>> findAllByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(addressService.findAllByUserId(userId));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<AddressResponse> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(addressService.findById(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AddressResponse> update(@PathVariable Long id,
+                                                  @Valid @RequestBody UpdateAddressRequest req) {
+        return ResponseEntity.ok(addressService.update(id, req));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        addressService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+}
