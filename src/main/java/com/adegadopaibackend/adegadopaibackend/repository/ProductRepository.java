@@ -10,10 +10,17 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    List<Product> findByCategoryIdAndIsActiveTrue(Long categoryId);
-    List<Product> findByIsActiveTrueAndStockGreaterThanOrderByCreatedAtDesc(Integer stock);
 
-    @Query("SELECT p FROM Product p WHERE " +
+
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category")
+    List<Product> findAllWithCategory();
+
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.category.id = :categoryId AND p.isActive = true")
+    List<Product> findByCategoryIdAndIsActiveTrue(Long categoryId);
+
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE " +
             "LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%')) AND p.isActive = true")
     List<Product> searchByName(String name);
+
+    List<Product> findByIsActiveTrueAndStockGreaterThanOrderByCreatedAtDesc(Integer stock);
 }

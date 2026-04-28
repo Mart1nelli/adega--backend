@@ -14,11 +14,13 @@ import com.adegadopaibackend.adegadopaibackend.service.ProductService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ProductServiceImpl implements ProductService{
 
     private final ProductRepository productRepository;
@@ -46,12 +48,14 @@ public class ProductServiceImpl implements ProductService{
         return productMapper.toResponse(savedProduct);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ProductResponse> findAll() {
-        List<Product> products = productRepository.findAll();
+        List<Product> products = productRepository.findAllWithCategory();
         return productMapper.toResponseList(products);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ProductResponse findById(Long id) {
         Product product = productRepository.findById(id)

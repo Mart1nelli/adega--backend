@@ -6,6 +6,7 @@ import com.adegadopaibackend.adegadopaibackend.service.CartService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class CartController {
 
     private final CartService cartService;
+
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<CartResponse> getCart(@PathVariable Long userId) {

@@ -10,11 +10,13 @@ import com.adegadopaibackend.adegadopaibackend.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -31,11 +33,13 @@ public class UserServiceImpl implements UserService {
         return userMapper.toResponse(savedUser);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<UserResponse> findAll() {
-        return userMapper.toResponseList(userRepository.findAll());
+        return userMapper.toResponseList(userRepository.findAllWithAddresses());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UserResponse findById(Long id) {
         User user = userRepository.findById(id)
