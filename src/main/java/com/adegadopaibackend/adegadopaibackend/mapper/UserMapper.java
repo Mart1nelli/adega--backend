@@ -19,6 +19,7 @@ public interface UserMapper {
 
     // Update parcial
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "password", ignore = true)
     void updateEntity(UpdateUserRequest request, @MappingTarget User user);
 
     // Listas

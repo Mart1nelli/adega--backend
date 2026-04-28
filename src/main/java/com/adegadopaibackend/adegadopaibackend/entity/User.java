@@ -2,8 +2,11 @@ package com.adegadopaibackend.adegadopaibackend.entity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -27,6 +30,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @AllArgsConstructor
@@ -38,7 +44,7 @@ import lombok.NoArgsConstructor;
 })
 @Builder
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -57,7 +63,7 @@ public class User {
     private String phone;
 
     @Builder.Default
-    private String role = "user";
+    private String role = "USER";
 
     @Min(0)
     @Builder.Default
@@ -72,7 +78,7 @@ public class User {
     private LocalDateTime updatedAt;
 
     @OrderBy("createdAt DESC")
-    @JsonManagedReference
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Address> addresses = new ArrayList<>();
@@ -84,32 +90,67 @@ public class User {
     private List<Order> orders = new ArrayList<>();
 
     @OrderBy("createdAt DESC")
-    @JsonManagedReference
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @Builder.Default
     private List<Cart> carts = new ArrayList<>();
 
     @OrderBy("createdAt DESC")
-    @JsonManagedReference
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @Builder.Default
     private List<Review> reviews = new ArrayList<>();
 
     @OrderBy("createdAt DESC")
-    @JsonManagedReference
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @Builder.Default
     private List<Notification> notifications = new ArrayList<>();
 
     @OrderBy("createdAt DESC")
-    @JsonManagedReference
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @Builder.Default
     private List<Payment> payments = new ArrayList<>();
 
     @OrderBy("createdAt DESC")
-    @JsonManagedReference
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @Builder.Default
     private List<OrderReview> orderReviews = new ArrayList<>();
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return lockUntil == null || lockUntil.isBefore(LocalDateTime.now());
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

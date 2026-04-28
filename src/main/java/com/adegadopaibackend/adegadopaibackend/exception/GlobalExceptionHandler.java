@@ -163,6 +163,14 @@ public class GlobalExceptionHandler {
         );
     }
 
+    public ResponseEntity<ApiError> handleBussinessException(BusinessException ex, HttpServletRequest request) {
+        return buildError(
+                HttpStatus.UNPROCESSABLE_ENTITY,
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiError> handleIllegalArgument(
             IllegalArgumentException ex,

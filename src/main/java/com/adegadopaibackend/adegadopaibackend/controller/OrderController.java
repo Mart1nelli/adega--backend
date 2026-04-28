@@ -2,11 +2,13 @@ package com.adegadopaibackend.adegadopaibackend.controller;
 
 import com.adegadopaibackend.adegadopaibackend.dto.request.CreateOrderRequest;
 import com.adegadopaibackend.adegadopaibackend.dto.response.OrderResponse;
+import com.adegadopaibackend.adegadopaibackend.entity.enums.OrderStatus;
 import com.adegadopaibackend.adegadopaibackend.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,18 +27,25 @@ public class OrderController {
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("#userId == authentication.principal.id or hasRole('ADMIN')")
     public ResponseEntity<List<OrderResponse>> findAllByUserId(@PathVariable Long userId) {
         return ResponseEntity.ok(orderService.findAllByUserId(userId));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<OrderResponse> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(orderService.findById(id));
+    @GetMapping("/{orderId}")
+    @PreAuthorize("#userId == authentication.principal.id or hasRole('ADMIN')")
+    public ResponseEntity<OrderResponse> findById(
+            @RequestParam Long userId,
+            @PathVariable Long orderId
+    ) {
+        return ResponseEntity.ok(orderService.findById(userId, orderId));
     }
 
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<OrderResponse> updateStatus(@PathVariable Long id,
-                                                      @RequestParam String status) {
+    @PutMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<OrderResponse> updateStatus(
+            @PathVariable Long id,
+            @RequestParam OrderStatus status) {
         return ResponseEntity.ok(orderService.updateStatus(id, status));
     }
 }

@@ -2,6 +2,7 @@ package com.adegadopaibackend.adegadopaibackend.service;
 
 import com.adegadopaibackend.adegadopaibackend.dto.request.CreateOrderRequest;
 import com.adegadopaibackend.adegadopaibackend.dto.response.OrderResponse;
+import com.adegadopaibackend.adegadopaibackend.entity.enums.OrderStatus;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ public interface OrderService {
 
     List<OrderResponse> findAllByUserId(Long userId);
 
-    OrderResponse findById(Long id);
+    OrderResponse findById(Long userId, Long orderId);
 
-    OrderResponse updateStatus(Long id, String status);
+    OrderResponse updateStatus(Long id, OrderStatus status);
 }

@@ -9,6 +9,7 @@ import com.adegadopaibackend.adegadopaibackend.repository.UserRepository;
 import com.adegadopaibackend.adegadopaibackend.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,16 +22,17 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponse create(CreateUserRequest req) {
         if (userRepository.existsByEmail(req.getEmail())) {
-            throw new IllegalArgumentException("Email already in use");
+            throw new IllegalArgumentException("Email already exists.");
         }
 
         User user = userMapper.toEntity(req);
-        User savedUser = userRepository.save(user);
-        return userMapper.toResponse(savedUser);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userMapper.toResponse(userRepository.save(user));
     }
 
     @Transactional(readOnly = true)
@@ -50,11 +52,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse update(Long id, UpdateUserRequest req) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User with ID: " + id + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         userMapper.updateEntity(req, user);
-        User updatedUser = userRepository.save(user);
-        return userMapper.toResponse(updatedUser);
+
+        if (req.getPassword() != null && !req.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(req.getPassword()));
+        }
+
+        return userMapper.toResponse(userRepository.save(user));
     }
 
     @Override

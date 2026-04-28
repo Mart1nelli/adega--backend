@@ -1,5 +1,6 @@
 package com.adegadopaibackend.adegadopaibackend.entity;
 
+import com.adegadopaibackend.adegadopaibackend.entity.enums.OrderStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -17,12 +18,11 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Builder
-@EqualsAndHashCode(exclude = {
-        "orderItems", "payments", "orderReviews",
-        "user", "address"
-})
+@EqualsAndHashCode(exclude = {"orderItems", "payments", "orderReviews", "user", "address"})
+@ToString(exclude = {"user", "address", "orderItems", "payments", "orderReviews"}) // CRUCIAL
 @Table(name = "orders")
 public class Order {
     @Id
@@ -33,7 +33,8 @@ public class Order {
     private BigDecimal totalAmount;
 
     @NotNull
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -64,3 +65,4 @@ public class Order {
     @JsonManagedReference
     private List<OrderReview> orderReviews = new ArrayList<>();
 }
+

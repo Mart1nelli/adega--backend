@@ -6,6 +6,7 @@ import com.adegadopaibackend.adegadopaibackend.entity.Cart;
 import com.adegadopaibackend.adegadopaibackend.entity.CartItem;
 import com.adegadopaibackend.adegadopaibackend.entity.Product;
 import com.adegadopaibackend.adegadopaibackend.entity.User;
+import com.adegadopaibackend.adegadopaibackend.exception.BusinessException;
 import com.adegadopaibackend.adegadopaibackend.mapper.CartMapper;
 import com.adegadopaibackend.adegadopaibackend.repository.CartItemRepository;
 import com.adegadopaibackend.adegadopaibackend.repository.CartRepository;
@@ -43,11 +44,22 @@ public class CartServiceImpl implements CartService {
         Product product = productRepository.findById(req.getProductId())
                 .orElseThrow(() -> new EntityNotFoundException("Product with ID: " + req.getProductId() + " not found"));
 
+        if (product.getStock() < req.getQuantity()) {
+            throw new BusinessException("Stock is not enough for this product: " + product.getName() + ". Available: " + product.getStock());
+        }
+
         cart.getCartItems().stream()
                 .filter(item -> item.getProduct().getId().equals(product.getId()))
                 .findFirst()
                 .ifPresentOrElse(
-                        item -> item.setQuantity(item.getQuantity() + req.getQuantity()),
+                        item -> {
+                            int newQuantity = item.getQuantity() + req.getQuantity();
+                            if (product.getStock() < newQuantity) {
+                                throw new BusinessException("Insufficient stock. You already have " +
+                                        item.getQuantity() + " In your cart and tried to add more " + req.getQuantity());
+                            }
+                            item.setQuantity(newQuantity);
+                        },
                         () -> {
                             CartItem newItem = CartItem.builder()
                                     .quantity(req.getQuantity())
@@ -67,6 +79,14 @@ public class CartServiceImpl implements CartService {
     public CartResponse updateItem(Long userId, Long cartItemId, Integer quantity) {
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart item with ID: " + cartItemId + " not found"));
+
+        if (!cartItem.getCart().getUser().getId().equals(userId)) {
+            throw new BusinessException("You are not authorized to update this cart item");
+        }
+
+        if (cartItem.getProduct().getStock() < quantity) {
+            throw new BusinessException("Insufficient stock for this product");
+        }
 
         cartItem.setQuantity(quantity);
         cartItemRepository.save(cartItem);
