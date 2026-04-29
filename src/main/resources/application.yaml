@@ -28,6 +28,14 @@ spring:
     locations: classpath:db/migration
     sql-migration-prefix: V
 
+api:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+
+security:
+  jwt:
+    secret-key: ${JWT_SECRET_KEY:S3cr3T40D0V1nA0_AdegaDoPai_Seguranca_2026_MudarEmProducaoParaAlgoMaior}
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
